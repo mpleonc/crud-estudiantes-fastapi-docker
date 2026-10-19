@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, status, Depends
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from pydantic import BaseModel,ConfigDict, Field, EmailStr, field_validator
 from typing import List
 import logging
 import os
@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker, Session
 # Configuración de la conexión a la base de datos y definir el modelo de la tabla de tareas
 # (por ejemplo, con SQLAlchemy)
 #engine = create_engine(DATABASE_URL,connect_args={"check_same_thread":False}) #Exclusivo de SQLite
-# engine = create_engine(os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:@db:5432/postgres"))
+# engine = create_engine(os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:Sup%40b%40s3.c0m@db.ctbsoalfyzfzhepbejit.supabase.co:5432/postgres"))
 engine = create_engine(os.getenv("DATABASE_URL"))
 SessionLocal= sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False)
 Base = declarative_base()
@@ -138,6 +138,7 @@ class EstudianteCreate(BaseModel):
         return value
 
 class EstudianteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     nombre: str
     email: str
