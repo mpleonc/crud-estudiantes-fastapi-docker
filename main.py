@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi import FastAPI, HTTPException, status, Depends, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
 from pydantic import BaseModel,ConfigDict, Field, EmailStr, field_validator
 from typing import List
 import logging
@@ -15,8 +17,8 @@ from sqlalchemy.orm import sessionmaker, Session
 
 # Configuración de la conexión a la base de datos y definir el modelo de la tabla de tareas
 # (por ejemplo, con SQLAlchemy)
-#engine = create_engine(DATABASE_URL,connect_args={"check_same_thread":False}) #Exclusivo de SQLite
-# engine = create_engine(os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:Sup%40b%40s3.c0m@db.ctbsoalfyzfzhepbejit.supabase.co:5432/postgres"))
+# engine = create_engine(DATABASE_URL,connect_args={"check_same_thread":False}) #Exclusivo de SQLite
+# engine = create_engine(os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:@db..supabase.co:5432/postgres"))
 engine = create_engine(os.getenv("DATABASE_URL"))
 SessionLocal= sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False)
 Base = declarative_base()
@@ -144,7 +146,16 @@ class EstudianteResponse(BaseModel):
     email: str
     edad: int
 
-app = FastAPI(title="CRUD API", version="1.0.0")    
+app = FastAPI(title="CRUD API", version="1.0.0")
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request:Request, exc:RequestValidationError):
+    """Registra los errores de validación 422"""
+    for error in exc.errors():
+        campo = ".".join(str(parte) for parte in error["loc"])
+        logger.warning(f"Validación fallida en {request.method} {request.url.path}: campo={campo}, motivo={error['msg']}")
+    return await request_validation_exception_handler(request, exc)
+
 # Implementación endpoints CRUD
 @app.get("/estudiantes", response_model=List[EstudianteResponse])
 def listar_estudiantes(mng:EstudianteManager=Depends(get_estudiante_manager)):

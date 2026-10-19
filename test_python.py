@@ -56,6 +56,7 @@ def test_datos_incorrectos():
     escenarios_prueba=[
         {"nombre": "","email":"prueb@r.co", "edad":15},
         {"nombre": "Susan Lopez","email":"", "edad":23},
+         {"nombre": "Susan Lopez5","email":"susilo@gmail.com", "edad":23},
         {"email":"email@io.es", "edad": 25},
         {"nombre": "Fatima Li Lau","email":"guty@gt.es", "edad": -33}
    ]    
